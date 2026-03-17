@@ -5,5 +5,3 @@ Automating product label creation through three different approaches:
 * Illustrator Scripting
 * Python
 * AI prompting
-
-added this to test sync
