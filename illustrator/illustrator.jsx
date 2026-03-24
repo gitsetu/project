@@ -42,8 +42,8 @@ function parseCSV(data) {
 // Function to import CSV data from a file.
 function importCSV() {
     // fileRef references a file object.
-    // var fileRef = new File ("~/Desktop/test.csv"); // this is the hardcoded option
-    var fileRef = File.openDialog("Select a CSV file", "*.csv"); // this lets user select a file
+    var fileRef = new File ("~/Desktop/test.csv"); // this is the hardcoded option
+    // var fileRef = File.openDialog("Select a CSV file", "*.csv"); // this lets user select a file
     
     if (fileRef) { // If file exists/selected.
         fileRef.open('r'); // Open the file in read mode.
