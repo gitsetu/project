@@ -1,4 +1,4 @@
-# Final Project
+# Label Automation
 ## Label Design &amp; Compliance Workflows
 
 Automating product label creation through three different approaches: 
