@@ -1,0 +1,48 @@
+\documentclass[11pt, oneside]{article}   	
+\usepackage{geometry}              		
+\geometry{letterpaper, margin=3mm}                   		
+\geometry{landscape}                		
+\usepackage[parfill]{parskip}    		
+\usepackage{graphicx}				
+\usepackage{tikz}
+
+
+\title{Label Design with Manual LaTeX Typesetting}
+\author{}
+\date{March 2026}
+
+
+
+\begin{document}
+
+\maketitle
+\vskip1cm % vertical spacing
+\noindent
+
+
+\begin{center}
+\begin{tikzpicture} 
+  \draw[line width=1pt, black, rounded corners=4mm] (0,0) rectangle (200mm, 80mm);
+  
+    % Ingredient list top left 
+    
+%\parbox{3cm}{This is a paragraph that is contained within a box that is 3 cm wide.}
+    
+  % Logo positioned at top  
+  \node[anchor=north] at (100mm, 75mm) {\includegraphics[width=4cm]{brand-logo.png}};
+    
+  % Product name centered
+  \node[font=\LARGE] at (100mm, 20mm) {\textsf{\textbf{Product Name}}};
+  
+% Barcode at bottom left
+  \node[anchor=south] at (10mm, 5mm) {\input ean13 \EAN 8720182774798};
+
+  % Ingredient list top left \node[font=\small] at (10mm, 70mm) {\textsf{Sugar, Palm Oil, Hazelnuts (13\%), Skimmed Milk Powder (8.7\%), Fat-Reduced Cocoa (7.4\%), Emulsifier: Lecithins (Soya), Vanillin}};
+
+\end{tikzpicture}
+
+%\end
+
+\end{center}
+
+\end{document}

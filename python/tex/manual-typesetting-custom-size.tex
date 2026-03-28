@@ -1,0 +1,72 @@
+
+
+%preamble
+%\documentclass[draft]{article} %reduce compilation time during development
+\documentclass{article}
+\usepackage[paperheight=8cm,paperwidth=20cm,margin=3mm]{geometry} % adjusting page margins and layout
+            % Source - https://tex.stackexchange.com/a/119982
+\usepackage{graphicx} % Include to work with images    
+\usepackage{tikz} % for drawing and positioning elements        
+\usepackage{calc}  % for width calculations
+\pagestyle {empty} %remove page numbers from all pages
+\input ean13
+
+%start
+\begin{document}
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+% ingredients
+\vtop{
+\parbox[t]{\linewidth}{\sffamily
+\textbf{Ingredients:} Sugar, Palm Oil, Hazelnuts (13\%), Skimmed Milk Powder (8.7\%), Fat-Reduced Cocoa (7.4\%), Emulsifier: Lecithins (Soya), Vanillin
+}
+}
+\vspace{1cm}% vertical spacing for visual separation
+% barcode
+\begin{tikzpicture}
+  \node[anchor=north] at (40mm,5mm){% grouped
+    {\EAN 8720182774798}\relax
+  };
+\end{tikzpicture}
+% net quantity
+\LARGE\textbf{180g ℮}
+\end{minipage}\hspace{2mm}%
+%\hfill
+\begin{minipage}[t]{0.32\textwidth}
+\centering
+\parbox{\linewidth}{\centering } % added this to fix issue with position of image
+%}
+% brand logo
+\vtop{
+\includegraphics[width=4cm]{brand-logo.png}
+}
+% product name
+\parbox[t]{\linewidth}{\centering \sffamily\bfseries\fontsize{18}{20}\selectfont Product Name}
+\end{minipage}\hspace{2mm}%
+%\hfill
+\begin{minipage}[t]{0.32\textwidth}
+% nutritional table
+\parbox[t]{\linewidth}{
+\vtop{
+\begin{tabular}{l r}
+\textbf{Energy} & 2180 kJ / 522 kcal \\
+\textbf{Fat} & 30.9 g \\
+\quad of which saturates & 12.1 g \\
+\textbf{Carbohydrate} & 57.5 g \\
+\quad of which sugars & 56.3 g \\
+\textbf{Fiber} & 1.0 g \\
+\textbf{Protein} & 6.2 g \\
+\textbf{Salt} & 0.24 g \\
+\end{tabular}}}
+
+\vspace{1cm}% vertical spacing for visual separation
+% address
+\parbox[t]{\linewidth}{\sffamily\hyphenpenalty=10000\exhyphenpenalty=10000
+Valeo Foods, Merrywell Industrial Estate, Ballymount, Dublin 12.
+}
+
+\vspace{1cm}% vertical spacing for visual separation
+% best before date
+\parbox[t]{\linewidth}{Best Before ...............}
+\end{minipage}
+\end{document}
