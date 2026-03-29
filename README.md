@@ -44,7 +44,7 @@ Put the necessary files into the same directory:
 - products.csv
 
 Open the terminal of your system and enter the command:  
-`python generate-label.py`
+`python generate-labels.py`
 
 After running the command two files for each product will be created on their own directory, one with the extension `.tex` and another with the extension `.pdf`. The TeX file contains the instructions that creates the PDF.
 
