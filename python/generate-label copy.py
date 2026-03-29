@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import shutil
 import sys
+import os
 
 CSV_FILE = "product.csv"
 TEX_TEMPLATE = "label-template.tex"
@@ -30,26 +31,6 @@ def latex_escape(text):
     for k, v in replacements.items():
         text = text.replace(k, v)
     return text
-
-def get_nutrition_table(row):
-    """Return nutrition table if nutritional_information is True, else empty string."""
-    if not row.get("nutritional_information", False):
-        return ""
-    
-    def val(col):
-        return latex_escape(row.get(col, ""))
-    
-    return f"""\\begin{{tabular}}{{@{{}}l r@{{}}}}
-\\multicolumn{{2}}{{@{{}}l@{{}}}}{{\\textbf{{Nutritional Values}} \\hfill (per 100g)}} \\\\ \\hline
-\\textbf{{Energy}} & {val('energy_kj')} / {val('energy_kcal')} \\\\
-\\textbf{{Fat}} & {val('fat_total')} \\\\
-\\quad of which saturates & {val('fat_saturates')} \\\\
-\\textbf{{Carbohydrate}} & {val('carbohydrates')} \\\\
-\\quad of which sugars & {val('sugars')} \\\\
-\\textbf{{Fiber}} & {val('fibre')} \\\\
-\\textbf{{Protein}} & {val('protein')} \\\\
-\\textbf{{Salt}} & {val('salt')} \\\\
-\\end{{tabular}}"""
 
 def cleanup_aux_files(path):
     """Remove LaTeX auxiliary files."""
@@ -78,42 +59,21 @@ def main():
         "{BRAND_LOGO}": latex_escape(row["brand_logo"]),
         "{BUSINESS_ADDRESS}": latex_escape(row["business_address"]),
         "{BEST_BEFORE_DATE}": latex_escape(row["best_before_date"]),
+        "{ENERGY_KJ}": latex_escape(row["energy_kj"]),
+        "{ENERGY_KCAL}": latex_escape(row["energy_kcal"]),
+        "{FAT_TOTAL}": latex_escape(row["fat_total"]),
+        "{FAT_SATURATES}": latex_escape(row["fat_saturates"]),
+        "{CARBOHYDRATES}": latex_escape(row["carbohydrates"]),
+        "{SUGARS}": latex_escape(row["sugars"]),
+        "{FIBRE}": latex_escape(row["fibre"]),
+        "{PROTEIN}": latex_escape(row["protein"]),
+        "{SALT}": latex_escape(row["salt"]),
     }
     
-    # Replace basic placeholders first
+    # Replace placeholders in template
     final_tex = template_text
     for placeholder, value in placeholders.items():
         final_tex = final_tex.replace(placeholder, value)
-    
-    # Handle nutrition table conditionally
-    nutrition_table = get_nutrition_table(row)
-    if nutrition_table:
-        # Replace the entire nutrition table block
-        nutrition_block = r"""\begin{tabular}{@{}l r@{}}
-\multicolumn{2}{@{}l@{}}{\textbf{Nutritional Values} \hfill (per 100g)} \\ \hline
-\textbf{Energy} & {ENERGY_KJ} / {ENERGY_KCAL} \\
-\textbf{Fat} & {FAT_TOTAL} \\
-\quad of which saturates & {FAT_SATURATES} \\
-\textbf{Carbohydrate} & {CARBOHYDRATES} \\
-\quad of which sugars & {SUGARS} \\
-\textbf{Fiber} & {FIBRE} \\
-\textbf{Protein} & {PROTEIN} \\
-\textbf{Salt} & {SALT} \\
-\end{tabular}"""
-        final_tex = final_tex.replace(nutrition_block, nutrition_table)
-        print("✅ Nutrition table included (nutritional_information=True)")
-    else:
-        # Remove the entire nutrition tikzpicture box
-        nutrition_box_start = r"""\begin{tikzpicture}
-\node[draw,rounded corners=4pt,line width=0.4pt,inner sep=4pt,outer sep=0pt,anchor=north west] (box) at (0,0) {%"""
-        nutrition_box_end = r"""\end{tikzpicture}"""
-        
-        # Extract content between start and end, replace whole block with empty
-        start_idx = final_tex.find(nutrition_box_start)
-        if start_idx != -1:
-            end_idx = final_tex.find(nutrition_box_end, start_idx) + len(nutrition_box_end)
-            final_tex = final_tex[:start_idx] + final_tex[end_idx:]
-        print("✅ Nutrition table removed (nutritional_information=False)")
     
     # Write output TEX file
     Path(OUTPUT_TEX).write_text(final_tex, encoding="utf-8")
@@ -141,7 +101,7 @@ def main():
             pdf_temp = tmp_path / OUTPUT_PDF
             shutil.copy2(pdf_temp, OUTPUT_PDF)
         
-        # Clean up any aux files
+        # Clean up any aux files that might have escaped to working directory
         cleanup_aux_files(Path(OUTPUT_TEX))
         cleanup_aux_files(Path(OUTPUT_PDF))
         
