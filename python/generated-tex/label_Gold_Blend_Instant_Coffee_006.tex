@@ -1,0 +1,52 @@
+%preamble
+\documentclass{article}
+\usepackage[paperheight=8cm,paperwidth=20cm,margin=5mm]{geometry}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{calc}
+\usepackage[justification=centering]{caption}
+\pagestyle{empty}
+\input ean13
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.95}
+
+\newcommand{\panelsep}{\vspace{4mm}}
+
+\begin{document}
+\noindent
+\begin{minipage}[t][6cm][s]{0.32\textwidth}\vspace{0pt}
+\sffamily\small
+\textbf{Ingredients:} Soluble Coffee, Roast and Ground Coffee (3\%)
+
+\vfill
+\begin{flushleft}
+\begin{tikzpicture}[baseline]
+\node[anchor=south west] at (0,0){{\EAN8445290070579.0}\relax};
+\end{tikzpicture}
+\vspace{-4mm}
+\large\bfseries 190g℮ 
+\large\bfseries nan
+\end{flushleft}
+\end{minipage}\hfill%
+\begin{minipage}[t][6cm][c]{0.32\textwidth}\vspace{0pt}
+\centering
+\includegraphics[width=4cm]{brand-logo.png}
+
+\vspace{1.5mm}
+{\sffamily\bfseries\fontsize{16}{18}\selectfont Gold Blend Instant Coffee\par}
+\end{minipage}\hfill%
+\begin{minipage}[t][6cm][s]{0.32\textwidth}\vspace{0pt}
+\raggedright\small
+
+
+\vspace{1cm}
+\sffamily\footnotesize
+Nestlé UK Ltd.,Tutbury,UK.UK: Nestlé UK Ltd,PO Box 207,York,YO91 1WS.IE: Nestlé Ireland Ltd,3009 Lake Drive,Citywest,Dublin,D24 H6RR.
+
+\vspace{3mm}
+Best Before nan
+\end{minipage}
+\end{document}
