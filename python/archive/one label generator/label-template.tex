@@ -19,24 +19,24 @@
 \noindent
 \begin{minipage}[t][6cm][s]{0.32\textwidth}\vspace{0pt}
 \sffamily\small
-\textbf{Ingredients:} Rapeseed oil (78\%), \textbf{EGG} \& \textbf{EGG} yolk (7.9\%), water, spirit vinegar, sugar, salt, flavourings, lemon juice concentrate, antioxidant (calcium disodium EDTA), paprika extract.
+\textbf{Ingredients:} {LIST_OF_INGREDIENTS}
 
 \vfill
 \begin{flushleft}
 \begin{tikzpicture}[baseline]
-\node[anchor=south west] at (0,0){{\EAN8720182774798.0}\relax};
+\node[anchor=south west] at (0,0){{\EAN{BARCODE_NUMBER}}\relax};
 \end{tikzpicture}
 \vspace{-4mm}
-\large\bfseries 400g℮ 
-\large\bfseries nan
+\large\bfseries {NET_QUANTITY}{E_MARK} 
+\large\bfseries {DRAINED_WEIGHT}
 \end{flushleft}
 \end{minipage}\hfill%
 \begin{minipage}[t][6cm][c]{0.32\textwidth}\vspace{0pt}
 \centering
-\includegraphics[width=4cm]{brand-logo.png}
+\includegraphics[width=4cm]{{BRAND_LOGO}}
 
 \vspace{1.5mm}
-{\sffamily\bfseries\fontsize{16}{18}\selectfont Real Mayonnaise\par}
+{\sffamily\bfseries\fontsize{16}{18}\selectfont {PRODUCT_NAME}\par}
 \end{minipage}\hfill%
 \begin{minipage}[t][6cm][s]{0.32\textwidth}\vspace{0pt}
 \raggedright\small
@@ -46,23 +46,23 @@
 \small
 \begin{tabular}{@{}l r@{}}
 \multicolumn{2}{@{}l@{}}{\textbf{Nutritional Values} \hfill (per 100g)} \\ \hline
-\textbf{Energy} & 3011kJ / 720kcal \\
-\textbf{Fat} & 79g \\
-\quad of which saturates & 6.1g \\
-\textbf{Carbohydrate} & 1.4g \\
-\quad of which sugars & 1.3g \\
-\textbf{Fiber} & <0.5g \\
-\textbf{Protein} & 1.1g \\
-\textbf{Salt} & 1.2g \\
+\textbf{Energy} & {ENERGY_KJ} / {ENERGY_KCAL} \\
+\textbf{Fat} & {FAT_TOTAL} \\
+\quad of which saturates & {FAT_SATURATES} \\
+\textbf{Carbohydrate} & {CARBOHYDRATES} \\
+\quad of which sugars & {SUGARS} \\
+\textbf{Fiber} & {FIBRE} \\
+\textbf{Protein} & {PROTEIN} \\
+\textbf{Salt} & {SALT} \\
 \end{tabular}
 \end{minipage}};
 \end{tikzpicture}
 
 \vspace{1cm}
 \sffamily\footnotesize
-Unilever UK, Hellmann's, Freepost ADM 3940, London, SW1A 1YR. Unilever Ireland, 20 Riverwalk, Citywest, Dublin 24.
+{BUSINESS_ADDRESS}
 
 \vspace{3mm}
-Best Before April 2026
+Best Before {BEST_BEFORE_DATE}
 \end{minipage}
 \end{document}
