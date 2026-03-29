@@ -4,9 +4,10 @@ import subprocess
 import tempfile
 import shutil
 import sys
+import os
 
 CSV_FILE = "product.csv"
-TEX_TEMPLATE = "label-2.tex"
+TEX_TEMPLATE = "label-template.tex"  # Renamed from label-2.tex
 OUTPUT_TEX = "label-output.tex"
 OUTPUT_PDF = "label-output.pdf"
 
@@ -30,6 +31,14 @@ def latex_escape(text):
     for k, v in replacements.items():
         text = text.replace(k, v)
     return text
+
+def cleanup_aux_files(path):
+    """Remove LaTeX auxiliary files."""
+    for ext in ['.aux', '.log', '.synctex.gz', '.synctex(busy)']:
+        aux_file = path.with_suffix('') / (path.stem + ext)
+        if aux_file.exists():
+            aux_file.unlink()
+            print(f"🧹 Cleaned {aux_file.name}")
 
 def main():
     # Read CSV data
@@ -90,7 +99,12 @@ def main():
             pdf_temp = tmp_path / OUTPUT_PDF
             shutil.copy2(pdf_temp, OUTPUT_PDF)
         
+        # Clean up any aux files that might have escaped to working directory
+        cleanup_aux_files(Path(OUTPUT_TEX))
+        cleanup_aux_files(Path(OUTPUT_PDF))
+        
         print(f"✅ Created {OUTPUT_PDF}")
+        print("🧹 All auxiliary files cleaned up!")
         print("📄 Files generated successfully!")
         
     except subprocess.CalledProcessError as e:
