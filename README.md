@@ -39,6 +39,7 @@ Requirements:
 Put the necessary files into the same directory:
 
 - generate-label.py
+- label-template.tex
 - brand-logo.png
 - product.csv
 
