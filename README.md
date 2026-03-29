@@ -38,15 +38,15 @@ Requirements:
 
 Put the necessary files into the same directory:
 
-- generate-label.py
+- generate-labels.py
 - label-template.tex
 - brand-logo.png
-- product.csv
+- products.csv
 
 Open the terminal of your system and enter the command:  
 `python generate-label.py`
 
-After running the command two files will be created on the working directory, one with the extension `.tex` and another with the extension `.pdf`. The TeX file contains the instructions that creates the PDF.
+After running the command two files for each product will be created on their own directory, one with the extension `.tex` and another with the extension `.pdf`. The TeX file contains the instructions that creates the PDF.
 
 ## AI Prompting
 
