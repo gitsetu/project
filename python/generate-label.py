@@ -54,6 +54,8 @@ def main():
         "{LIST_OF_INGREDIENTS}": latex_escape(row["list_of_ingredients"]),
         "{BARCODE_NUMBER}": latex_escape(row["barcode_number"]),
         "{NET_QUANTITY}": latex_escape(row["net_quantity"]),
+        "{E_MARK}": latex_escape(row["e_mark"]),
+        "{DRAINED_WEIGHT}": latex_escape(row["drained_weight"]),
         "{BRAND_LOGO}": latex_escape(row["brand_logo"]),
         "{BUSINESS_ADDRESS}": latex_escape(row["business_address"]),
         "{BEST_BEFORE_DATE}": latex_escape(row["best_before_date"]),
