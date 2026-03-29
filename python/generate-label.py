@@ -4,41 +4,76 @@ import subprocess
 import tempfile
 import shutil
 import sys
+import re
 
 CSV_FILE = "product.csv"
 TEX_TEMPLATE = "label-template.tex"
 OUTPUT_TEX = "label-output.tex"
 OUTPUT_PDF = "label-output.pdf"
 
-def latex_escape(text):
-    """Escape special LaTeX characters."""
+EU_ALLERGENS = {
+    'gluten', 'wheat', 'rye', 'barley', 'oats', 'crustaceans', 'crabs', 'prawns', 'lobsters',
+    'eggs', 'egg', 'fish', 'peanuts', 'soya', 'soy', 'soybeans', 'milk', 'nuts', 'almonds',
+    'hazelnuts', 'walnuts', 'cashews', 'pecan', 'brazil nuts', 'pistachio', 'macadamia',
+    'celery', 'mustard', 'sesame', 'sulphur dioxide', 'sulphites', 'sulfites', 'lupin',
+    'molluscs', 'mussels', 'oysters', 'squid', 'snails', 'lecithins'
+}
+
+def latex_escape_ingredients(text: str) -> str:
+    """Escape ingredients AFTER bold markers, escape % FIRST to prevent truncation."""
+    text = str(text)
+    
+    # CRITICAL: Escape % FIRST to prevent LaTeX comment truncation
+    text = text.replace('%', r'\%')
+    
+    # Then escape & for "EGG & EGG yolk"
+    text = text.replace('&', r'\&')
+    
+    return text
+
+def highlight_allergens(ingredients: str) -> str:
+    """Wrap EU allergens in \textbf{}."""
+    text = str(ingredients)
+    print(f"🔍 Original: {text[:100]}...")
+    
+    for allergen in EU_ALLERGENS:
+        pattern = r'\b' + re.escape(allergen) + r'\b'
+        def bold_match(match):
+            return r'\textbf{' + match.group(0) + '}'
+        text = re.sub(pattern, bold_match, text, flags=re.IGNORECASE)
+    
+    print(f"🔍 Bolded:   {text[:100]}...")
+    return text
+
+def process_ingredients(ingredients_raw: str) -> str:
+    """Highlight allergens → escape ingredients properly."""
+    # 1. Add bold markers FIRST (no % escaping needed yet)
+    ingredients_marked = highlight_allergens(ingredients_raw)
+    
+    # 2. Escape ingredients with % protection
+    ingredients_tex = latex_escape_ingredients(ingredients_marked)
+    
+    print(f"🔍 TEX:     {ingredients_tex[:150]}...")
+    print("-" * 80)
+    return ingredients_tex
+
+def latex_escape_plain(text: str) -> str:
+    """Escape for non-ingredients."""
     if pd.isna(text):
         return ""
     text = str(text)
     replacements = {
-        "\\": r"\textbackslash{}",
-        "&": r"\&",
-        "%": r"\%",
-        "$": r"\$",
-        "#": r"\#",
-        "_": r"\_",
-        "{": r"\{",
-        "}": r"\}",
-        "~": r"\textasciitilde{}",
-        "^": r"\textasciicircum{}",
+        "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
+        "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\hat{}",
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
     return text
 
 def get_nutrition_table(row):
-    """Return nutrition table if nutritional_information is True, else empty string."""
-    if not row.get("nutritional_information", False):
+    if not bool(row.get("nutritional_information", False)):
         return ""
-    
-    def val(col):
-        return latex_escape(row.get(col, ""))
-    
+    def val(col): return latex_escape_plain(str(row.get(col, "")))
     return f"""\\begin{{tabular}}{{@{{}}l r@{{}}}}
 \\multicolumn{{2}}{{@{{}}l@{{}}}}{{\\textbf{{Nutritional Values}} \\hfill (per 100g)}} \\\\ \\hline
 \\textbf{{Energy}} & {val('energy_kj')} / {val('energy_kcal')} \\\\
@@ -51,45 +86,34 @@ def get_nutrition_table(row):
 \\textbf{{Salt}} & {val('salt')} \\\\
 \\end{{tabular}}"""
 
-def cleanup_aux_files(path):
-    """Remove LaTeX auxiliary files."""
-    for ext in ['.aux', '.log', '.synctex.gz', '.synctex(busy)']:
-        aux_file = path.with_suffix('') / (path.stem + ext)
-        if aux_file.exists():
-            aux_file.unlink()
-            print(f"🧹 Cleaned {aux_file.name}")
-
 def main():
-    # Read CSV data
     df = pd.read_csv(CSV_FILE)
-    row = df.iloc[0]  # Use first row
-    
-    # Read template
+    row = df.iloc[0]
+
+    # Process ingredients FIRST
+    ingredients_tex = process_ingredients(row["list_of_ingredients"])
+
     template_text = Path(TEX_TEMPLATE).read_text(encoding="utf-8")
-    
-    # Define all placeholders and their CSV mappings
+
     placeholders = {
-        "{PRODUCT_NAME}": latex_escape(row["product_name"]),
-        "{LIST_OF_INGREDIENTS}": latex_escape(row["list_of_ingredients"]),
-        "{BARCODE_NUMBER}": latex_escape(row["barcode_number"]),
-        "{NET_QUANTITY}": latex_escape(row["net_quantity"]),
-        "{E_MARK}": latex_escape(row["e_mark"]),
-        "{DRAINED_WEIGHT}": latex_escape(row["drained_weight"]),
-        "{BRAND_LOGO}": latex_escape(row["brand_logo"]),
-        "{BUSINESS_ADDRESS}": latex_escape(row["business_address"]),
-        "{BEST_BEFORE_DATE}": latex_escape(row["best_before_date"]),
+        "{PRODUCT_NAME}": latex_escape_plain(str(row["product_name"])),
+        "{LIST_OF_INGREDIENTS}": ingredients_tex,
+        "{BARCODE_NUMBER}": latex_escape_plain(str(row["barcode_number"])),
+        "{NET_QUANTITY}": latex_escape_plain(str(row["net_quantity"])),
+        "{E_MARK}": latex_escape_plain(str(row["e_mark"])),
+        "{DRAINED_WEIGHT}": latex_escape_plain(str(row["drained_weight"])),
+        "{BRAND_LOGO}": latex_escape_plain(str(row["brand_logo"])),
+        "{BUSINESS_ADDRESS}": latex_escape_plain(str(row["business_address"])),
+        "{BEST_BEFORE_DATE}": latex_escape_plain(str(row["best_before_date"])),
     }
-    
-    # Replace basic placeholders first
+
     final_tex = template_text
-    for placeholder, value in placeholders.items():
-        final_tex = final_tex.replace(placeholder, value)
-    
-    # Handle nutrition table conditionally
+    for ph, val in placeholders.items():
+        final_tex = final_tex.replace(ph, val)
+
+    # Nutrition table replacement
     nutrition_table = get_nutrition_table(row)
-    if nutrition_table:
-        # Replace the entire nutrition table block
-        nutrition_block = r"""\begin{tabular}{@{}l r@{}}
+    block = r"""\begin{tabular}{@{}l r@{}}
 \multicolumn{2}{@{}l@{}}{\textbf{Nutritional Values} \hfill (per 100g)} \\ \hline
 \textbf{Energy} & {ENERGY_KJ} / {ENERGY_KCAL} \\
 \textbf{Fat} & {FAT_TOTAL} \\
@@ -100,64 +124,31 @@ def main():
 \textbf{Protein} & {PROTEIN} \\
 \textbf{Salt} & {SALT} \\
 \end{tabular}"""
-        final_tex = final_tex.replace(nutrition_block, nutrition_table)
-        print("✅ Nutrition table included (nutritional_information=True)")
+    if nutrition_table:
+        final_tex = final_tex.replace(block, nutrition_table)
     else:
-        # Remove the entire nutrition tikzpicture box
-        nutrition_box_start = r"""\begin{tikzpicture}
+        start = r"""\begin{tikzpicture}
 \node[draw,rounded corners=4pt,line width=0.4pt,inner sep=4pt,outer sep=0pt,anchor=north west] (box) at (0,0) {%"""
-        nutrition_box_end = r"""\end{tikzpicture}"""
-        
-        # Extract content between start and end, replace whole block with empty
-        start_idx = final_tex.find(nutrition_box_start)
-        if start_idx != -1:
-            end_idx = final_tex.find(nutrition_box_end, start_idx) + len(nutrition_box_end)
-            final_tex = final_tex[:start_idx] + final_tex[end_idx:]
-        print("✅ Nutrition table removed (nutritional_information=False)")
-    
-    # Write output TEX file
+        end = r"""\end{tikzpicture}"""
+        i = final_tex.find(start)
+        if i != -1:
+            j = final_tex.find(end, i) + len(end)
+            final_tex = final_tex[:i] + final_tex[j:]
+
     Path(OUTPUT_TEX).write_text(final_tex, encoding="utf-8")
-    print(f"✅ Created {OUTPUT_TEX} with CSV data")
-    
-    # Compile to PDF using pdflatex
+    print(f"✅ Wrote {OUTPUT_TEX}")
+
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
-            
-            # Copy output tex to temp dir
-            tex_temp = tmp_path / OUTPUT_TEX
-            tex_temp.write_text(final_tex, encoding="utf-8")
-            
-            # Run pdflatex twice (for references/tables)
-            for i in range(2):
-                result = subprocess.run(
-                    ["pdflatex", "-interaction=nonstopmode", "-output-directory", str(tmp_path), str(tex_temp)],
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-            
-            # Copy PDF to output
-            pdf_temp = tmp_path / OUTPUT_PDF
-            shutil.copy2(pdf_temp, OUTPUT_PDF)
-        
-        # Clean up any aux files
-        cleanup_aux_files(Path(OUTPUT_TEX))
-        cleanup_aux_files(Path(OUTPUT_PDF))
-        
-        print(f"✅ Created {OUTPUT_PDF}")
-        print("🧹 All auxiliary files cleaned up!")
-        print("📄 Files generated successfully!")
-        
-    except subprocess.CalledProcessError as e:
-        print(f"❌ pdflatex failed:")
-        print(e.stderr)
-        sys.exit(1)
-    except FileNotFoundError:
-        print("❌ pdflatex not found. Install TeX Live or MiKTeX.")
-        sys.exit(1)
+            (tmp_path / OUTPUT_TEX).write_text(final_tex, encoding="utf-8")
+            for _ in range(2):
+                subprocess.run(["pdflatex", "-interaction=nonstopmode", "-output-directory", str(tmp_path), OUTPUT_TEX],
+                             check=True, capture_output=True)
+            shutil.copy2(tmp_path / OUTPUT_PDF, OUTPUT_PDF)
+        print(f"✅ Created {OUTPUT_PDF} - Full ingredients + **BOLD EGG**!")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ pdflatex error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
