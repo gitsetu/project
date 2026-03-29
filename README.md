@@ -1,18 +1,12 @@
-# Label Automation
+# Label Automator
 
-#### Label Design &amp; Compliance Workflows
-
----
-
-Automating product label creation through three different approaches:
+Exploration of 3 different approaches (scripting, coding and AI prompting) for automating EU compliant label designs:
 
 - Illustrator Scripting
 - Python
 - AI prompting
 
 ## Illustrator Scripting
-
----
 
 This script can import data from a CSV file into a working document in Adobe Illustrator. Written in JavaScript ES3 it is compatible with Adobe CS6.
 
@@ -28,8 +22,6 @@ This script can import data from a CSV file into a working document in Adobe Ill
 3. On the application menu select File > Scripts > Other Scripts and select the JSX file. The script will prompt for the CSV file location, select the file and the data will be imported on the working document.
 
 ## Python
-
----
 
 Requirements:
 
@@ -57,4 +49,5 @@ After running the command two files will be created on the working directory, on
 
 ## AI Prompting
 
-No code here, just some prompts used.
+No code here, just a short selection of prompts.  
+[AI Prompting](ai/prompt.md)
